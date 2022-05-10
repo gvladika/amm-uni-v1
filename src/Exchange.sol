@@ -18,4 +18,13 @@ contract Exchange {
     function getReserve() public view returns (uint256) {
         return IERC20(token).balanceOf(address(this));
     }
+
+    function getPrice(uint256 inputReserve, uint256 outputReserve)
+        public
+        pure
+        returns (uint256)
+    {
+        require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
+        return (1000 * inputReserve) / outputReserve;
+    }
 }
