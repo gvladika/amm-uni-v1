@@ -27,4 +27,28 @@ contract Exchange {
         require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
         return (1000 * inputReserve) / outputReserve;
     }
+
+    function getAmount(
+        uint256 inputAmount,
+        uint256 inputReserve,
+        uint256 outputReserve
+    ) private pure returns (uint256) {
+        require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
+
+        uint256 outputAmount = (outputReserve * inputAmount) /
+            (inputReserve + inputAmount);
+        return outputAmount;
+    }
+
+    function getTokenAmount(uint256 _ethSold) public view returns (uint256) {
+        require(_ethSold > 0, "_ethSold must be greater than 0");
+
+        return getAmount(_ethSold, address(this).balance, getReserve());
+    }
+
+    function getEthAmount(uint256 _tokenSold) public view returns (uint256) {
+        require(_tokenSold > 0, "_tokenSold must be greater than 0");
+
+        return getAmount(_tokenSold, getReserve(), address(this).balance);
+    }
 }

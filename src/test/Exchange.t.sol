@@ -64,8 +64,35 @@ contract ExchangeTest is DSTest {
 
         uint256 etherToToken = exchange.getPrice(etherReserve, tokenReserve);
         assertTrue(etherToToken == (500));
+    }
 
-        // emit log_uint(exchange.getReserve());
-        // emit log_uint(address(exchange).balance);
+    function testGetEthAmount() public {
+        uint256 initialTokenLiquidity = 20 * 10**18;
+        uint256 initialEtherLiquidity = 10 ether;
+
+        vm.startPrank(alice);
+        token.approve(address(exchange), initialTokenLiquidity);
+        exchange.addLiquidity{value: initialEtherLiquidity}(
+            initialTokenLiquidity
+        );
+
+        uint256 tokenSold = 5 * 10**18;
+        uint256 ethAmount = exchange.getEthAmount(tokenSold);
+        assertTrue(ethAmount == 2 ether);
+    }
+
+    function testGetTokenAmount() public {
+        uint256 initialTokenLiquidity = 20 * 10**18;
+        uint256 initialEtherLiquidity = 10 ether;
+
+        vm.startPrank(alice);
+        token.approve(address(exchange), initialTokenLiquidity);
+        exchange.addLiquidity{value: initialEtherLiquidity}(
+            initialTokenLiquidity
+        );
+
+        uint256 ethSold = 10 ether;
+        uint256 tokenAmount = exchange.getTokenAmount(ethSold);
+        assertTrue(tokenAmount == 10 * 10**18);
     }
 }
