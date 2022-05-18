@@ -51,4 +51,24 @@ contract Exchange {
 
         return getAmount(_tokenSold, getReserve(), address(this).balance);
     }
+
+    function ethToTokenSwap(uint256 _minTokens) public payable {
+        uint256 _ethSold = msg.value;
+        uint256 tokensBought = getAmount(
+            _ethSold,
+            address(this).balance - _ethSold,
+            getReserve()
+        );
+        require(tokensBought >= _minTokens, "Slippage too high!");
+
+        IERC20(token).transfer(msg.sender, tokensBought);
+    }
+
+    function tokenToEthSwap(uint256 _tokensSold, uint256 _minEth) public {
+        uint256 ethBought = getEthAmount(_tokensSold);
+        require(ethBought >= _minEth, "Slippage too high!");
+
+        IERC20(token).transferFrom(msg.sender, address(this), _tokensSold);
+        payable(msg.sender).transfer(ethBought);
+    }
 }

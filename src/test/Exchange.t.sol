@@ -95,4 +95,51 @@ contract ExchangeTest is DSTest {
         uint256 tokenAmount = exchange.getTokenAmount(ethSold);
         assertTrue(tokenAmount == 10 * 10**18);
     }
+
+    function testEthToTokenSwap() public {
+        uint256 initialTokenLiquidity = 20 * 10**18;
+        uint256 initialEtherLiquidity = 10 ether;
+
+        // Alice provides initial liquidity
+        vm.startPrank(alice);
+        token.approve(address(exchange), initialTokenLiquidity);
+        exchange.addLiquidity{value: initialEtherLiquidity}(
+            initialTokenLiquidity
+        );
+        vm.stopPrank();
+
+        // bob initially has 100 ETH and 1000 token
+        vm.startPrank(bob);
+        assertTrue(address(bob).balance == 100 ether);
+        assertTrue(IERC20(exchange.token()).balanceOf(bob) == 1000 * 10**18);
+
+        // swap 10 ETH for 10 token
+        exchange.ethToTokenSwap{value: 10 ether}(8 * 10**18);
+        assertTrue(address(bob).balance == 90 ether);
+        assertTrue(IERC20(exchange.token()).balanceOf(bob) == 1010 * 10**18);
+    }
+
+    function testtokenToEthSwap() public {
+        uint256 initialTokenLiquidity = 20 * 10**18;
+        uint256 initialEtherLiquidity = 10 ether;
+
+        // Alice provides initial liquidity
+        vm.startPrank(alice);
+        token.approve(address(exchange), initialTokenLiquidity);
+        exchange.addLiquidity{value: initialEtherLiquidity}(
+            initialTokenLiquidity
+        );
+        vm.stopPrank();
+
+        // bob initially has 100 ETH and 1000 token
+        vm.startPrank(bob);
+        assertTrue(address(bob).balance == 100 ether);
+        assertTrue(IERC20(exchange.token()).balanceOf(bob) == 1000 * 10**18);
+
+        // swap 5 token for 2 token
+        IERC20(token).approve(address(exchange), 5 * 10**18);
+        exchange.tokenToEthSwap(5 * 10**18, 1.8 ether);
+        assertTrue(IERC20(exchange.token()).balanceOf(bob) == 995 * 10**18);
+        assertTrue(address(bob).balance == 102 ether);
+    }
 }
