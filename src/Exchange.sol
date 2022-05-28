@@ -14,9 +14,13 @@ contract Exchange is ERC20 {
         token = _token;
     }
 
-    function addLiquidity(uint256 _amount) public payable {
+    function addLiquidity(uint256 _amount) public payable returns (uint256) {
         if (getReserve() == 0) {
             IERC20(token).transferFrom(msg.sender, address(this), _amount);
+            uint256 lpTokensToMint = address(this).balance;
+            _mint(msg.sender, lpTokensToMint);
+
+            return lpTokensToMint;
         } else {
             uint256 ethReserve = address(this).balance - msg.value;
             uint256 tokenReserve = getReserve();
@@ -25,6 +29,10 @@ contract Exchange is ERC20 {
             require(_amount >= tokenAmountRequired, "insufficient token amount");
 
             IERC20(token).transferFrom(msg.sender, address(this), tokenAmountRequired);
+            uint256 lpTokensToMint = (totalSupply() * msg.value) / ethReserve;
+            _mint(msg.sender, lpTokensToMint);
+
+            return lpTokensToMint;
         }
     }
 

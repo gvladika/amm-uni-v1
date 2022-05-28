@@ -60,6 +60,28 @@ contract ExchangeTest is DSTest {
         assertTrue(ethReserveAfter - ethReserveBefore == 1 ether);
     }
 
+    function testLPTokenMinting() public {
+        // first addition
+        vm.startPrank(alice);
+        IERC20(token).approve(address(exchange), 20 * 10**18);
+        uint256 lpTokensMinted = exchange.addLiquidity{value: 10 ether}(20 * 10**18);
+        assertTrue(lpTokensMinted == 10 ether);
+
+        // second addition
+        vm.stopPrank();
+        vm.startPrank(bob);
+        IERC20(token).approve(address(exchange), 6 * 10**18);
+        lpTokensMinted = exchange.addLiquidity{value: 3 ether}(6 * 10**18);
+        assertTrue(lpTokensMinted == 3 ether);
+
+        // third addition
+        vm.stopPrank();
+        vm.startPrank(alice);
+        IERC20(token).approve(address(exchange), 10 * 10**18);
+        lpTokensMinted = exchange.addLiquidity{value: 4 ether}(8 * 10**18);
+        assertTrue(lpTokensMinted == 4 ether);
+    }
+
     function testGetPrice() public {
         uint256 tokenAmount = 20 * 10**18;
 
