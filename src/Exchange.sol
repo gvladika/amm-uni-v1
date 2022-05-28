@@ -12,18 +12,24 @@ contract Exchange {
     }
 
     function addLiquidity(uint256 _amount) public payable {
-        IERC20(token).transferFrom(msg.sender, address(this), _amount);
+        if (getReserve() == 0) {
+            IERC20(token).transferFrom(msg.sender, address(this), _amount);
+        } else {
+            uint256 ethReserve = address(this).balance - msg.value;
+            uint256 tokenReserve = getReserve();
+
+            uint256 tokenAmountRequired = (msg.value * tokenReserve) / ethReserve;
+            require(_amount >= tokenAmountRequired, "insufficient token amount");
+
+            IERC20(token).transferFrom(msg.sender, address(this), tokenAmountRequired);
+        }
     }
 
     function getReserve() public view returns (uint256) {
         return IERC20(token).balanceOf(address(this));
     }
 
-    function getPrice(uint256 inputReserve, uint256 outputReserve)
-        public
-        pure
-        returns (uint256)
-    {
+    function getPrice(uint256 inputReserve, uint256 outputReserve) public pure returns (uint256) {
         require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
         return (1000 * inputReserve) / outputReserve;
     }
@@ -35,8 +41,7 @@ contract Exchange {
     ) private pure returns (uint256) {
         require(inputReserve > 0 && outputReserve > 0, "invalid reserves");
 
-        uint256 outputAmount = (outputReserve * inputAmount) /
-            (inputReserve + inputAmount);
+        uint256 outputAmount = (outputReserve * inputAmount) / (inputReserve + inputAmount);
         return outputAmount;
     }
 
@@ -54,11 +59,7 @@ contract Exchange {
 
     function ethToTokenSwap(uint256 _minTokens) public payable {
         uint256 _ethSold = msg.value;
-        uint256 tokensBought = getAmount(
-            _ethSold,
-            address(this).balance - _ethSold,
-            getReserve()
-        );
+        uint256 tokensBought = getAmount(_ethSold, address(this).balance - _ethSold, getReserve());
         require(tokensBought >= _minTokens, "Slippage too high!");
 
         IERC20(token).transfer(msg.sender, tokensBought);

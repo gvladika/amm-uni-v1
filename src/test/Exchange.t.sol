@@ -119,7 +119,7 @@ contract ExchangeTest is DSTest {
         assertTrue(IERC20(exchange.token()).balanceOf(bob) == 1010 * 10**18);
     }
 
-    function testtokenToEthSwap() public {
+    function testTokenToEthSwap() public {
         uint256 initialTokenLiquidity = 20 * 10**18;
         uint256 initialEtherLiquidity = 10 ether;
 
