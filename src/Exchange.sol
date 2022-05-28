@@ -2,11 +2,14 @@
 pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
-contract Exchange {
+contract Exchange is ERC20 {
     address public token;
 
-    constructor(address _token) {
+    constructor(address _token)
+        ERC20(string.concat(ERC20(_token).name(), " LP"), string.concat(ERC20(_token).symbol(), "-LP"))
+    {
         require(_token != address(0), "token address can't be zero");
         token = _token;
     }

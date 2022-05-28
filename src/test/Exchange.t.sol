@@ -31,6 +31,17 @@ contract ExchangeTest is DSTest {
         token.transfer(bob, 1000 * 10**18);
     }
 
+    function testLPTokenNameIsSet() public {
+        string memory expectedName = "Test Token LP";
+        string memory expectedSymbol = "Test-LP";
+
+        string memory actualName = exchange.name();
+        string memory actualSymbol = exchange.symbol();
+
+        assertTrue(keccak256(abi.encodePacked(expectedName)) == keccak256(abi.encodePacked(actualName)));
+        assertTrue(keccak256(abi.encodePacked(expectedSymbol)) == keccak256(abi.encodePacked(actualSymbol)));
+    }
+
     function testAddLiquidity() public {
         uint256 amount = 100;
         uint256 tokenReserveBefore = exchange.getReserve();
@@ -72,9 +83,7 @@ contract ExchangeTest is DSTest {
 
         vm.startPrank(alice);
         token.approve(address(exchange), initialTokenLiquidity);
-        exchange.addLiquidity{value: initialEtherLiquidity}(
-            initialTokenLiquidity
-        );
+        exchange.addLiquidity{value: initialEtherLiquidity}(initialTokenLiquidity);
 
         uint256 tokenSold = 5 * 10**18;
         uint256 ethAmount = exchange.getEthAmount(tokenSold);
@@ -87,9 +96,7 @@ contract ExchangeTest is DSTest {
 
         vm.startPrank(alice);
         token.approve(address(exchange), initialTokenLiquidity);
-        exchange.addLiquidity{value: initialEtherLiquidity}(
-            initialTokenLiquidity
-        );
+        exchange.addLiquidity{value: initialEtherLiquidity}(initialTokenLiquidity);
 
         uint256 ethSold = 10 ether;
         uint256 tokenAmount = exchange.getTokenAmount(ethSold);
@@ -103,9 +110,7 @@ contract ExchangeTest is DSTest {
         // Alice provides initial liquidity
         vm.startPrank(alice);
         token.approve(address(exchange), initialTokenLiquidity);
-        exchange.addLiquidity{value: initialEtherLiquidity}(
-            initialTokenLiquidity
-        );
+        exchange.addLiquidity{value: initialEtherLiquidity}(initialTokenLiquidity);
         vm.stopPrank();
 
         // bob initially has 100 ETH and 1000 token
@@ -126,9 +131,7 @@ contract ExchangeTest is DSTest {
         // Alice provides initial liquidity
         vm.startPrank(alice);
         token.approve(address(exchange), initialTokenLiquidity);
-        exchange.addLiquidity{value: initialEtherLiquidity}(
-            initialTokenLiquidity
-        );
+        exchange.addLiquidity{value: initialEtherLiquidity}(initialTokenLiquidity);
         vm.stopPrank();
 
         // bob initially has 100 ETH and 1000 token
